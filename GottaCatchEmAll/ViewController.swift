@@ -52,30 +52,7 @@ class ViewController: UIViewController {
     
     private func getPokemon(withID id: String) {
         
-        let pokemonResource = Resource(
-            method: .GET,
-            path: .Pokemon(id: id),
-            parse: Pokemon.init
-        )
-        
-        Future(operation: pokemonResource.get)
-            .map { pokemon in
-                self.pokemon = pokemon
-                return pokemon.imageURL
-            }
-            .then(getImage)
-            .start { result in
-                switch result {
-                case .Success(let data):
-                    self.pokemonImageView.image = UIImage(data: data)
-                case .Failure(let error):
-                    print(error)
-                }
-            }
-    }
-    
-    private func getImage(withURL urlString: String)-> Future<NSData, ResourceError> {
-        return Future(operation: DataResource(url: urlString).get)
+        //
     }
     
     
