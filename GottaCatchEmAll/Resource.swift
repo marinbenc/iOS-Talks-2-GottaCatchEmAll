@@ -8,3 +8,6 @@
 
 import Alamofire
 
+struct Config {
+    static let baseURL = "http://pokeapi.co/api/v2/"
+}
