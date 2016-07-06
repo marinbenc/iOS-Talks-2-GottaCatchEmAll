@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Alamofire
 
 class ViewController: UIViewController {
     
@@ -27,7 +26,7 @@ class ViewController: UIViewController {
     
     //MARK: - Model
     
-    var pokemon: Pokemon? {
+    private var pokemon: Pokemon? {
         didSet {
             
             guard let pokemon = pokemon else {
@@ -52,7 +51,39 @@ class ViewController: UIViewController {
     
     private func getPokemon(withID id: String) {
         
-        //
+        let pokemonResource = JSONResource(path: .Pokemon(id: id), method: .GET, parse: Pokemon.init)
+        
+        //get the pokemon
+        Future(operation: pokemonResource.get)
+            //pull out imageURL
+            .map { (pokemon) -> String in
+                self.pokemon = pokemon
+                return pokemon.imageURL
+            }
+            //after you get the imageURL, get the image
+            .then(getImage)
+            //start the whole thing
+            .start { (result) in
+                switch result {
+                case .Success(let data):
+                    self.pokemonImageView.image = UIImage(data: data)
+                
+                case .Failure(let error):
+                    //Note that this error can come from any future in the chain.
+                    switch error {
+                    case .CannotParse:
+                        print("Cannot parse Pokemon!")
+                    case .ValidationFailure(let error):
+                        print("Validation failed: \(error)")
+                    case .UnknownError(let error):
+                        print("An unknown error occurred: \(error)")
+                    }
+                }
+            }
+    }
+    
+    private func getImage(fromURL url: String)-> Future<NSData, ServiceError> {
+        return Future(operation: DataResource(url: url).get)
     }
     
     
